@@ -234,7 +234,7 @@ Instance::Instance(const char* applicationName, unsigned int additionalExtension
       throw std::runtime_error("Validation layers requested, but not supoorted");
     }
 
-    createInfo.enabledLayerCount = 0;
+    createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
     createInfo.ppEnabledLayerNames = validationLayers.data();
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {};
@@ -340,4 +340,67 @@ void Instance::PickPhysicalDevice(
   }
 
   vkGetPhysicalDeviceMemoryProperties(physicalDevice, &deviceMemoryProperties);
+}
+
+Device* Instance::CreateDevice(QueueFlagBits requiredQueues, VkPhysicalDeviceFeatures deviceFeatures) {
+  std::set<int> uniqueQueueFamilies;
+  bool queueSupport = true;
+  for (unsigned int i = 0; i < requiredQueues.size(); i++)
+  {
+    if (requiredQueues[i]) {
+      queueSupport &= (queueFamilyIndices[i] >=0);
+      uniqueQueueFamilies.insert(queueFamilyIndices[i]);
+    }
+  }
+
+  if (!queueSupport) {
+    throw std::runtime_error("Device does not support requested queues");
+  }
+
+  std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+  float queuePriority = 1.0f;
+  for (int queueFamilyIndex : uniqueQueueFamilies)
+  {
+    VkDeviceQueueCreateInfo queueCreateInfo = {};
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.queueFamilyIndex = queueFamilyIndex;
+    queueCreateInfo.queueCount = 1;
+    queueCreateInfo.pQueuePriorities = &queuePriority;
+
+    queueCreateInfos.push_back(queueCreateInfo);
+  }
+
+  // --- Create logical device ---
+  VkDeviceCreateInfo deviceCreateInfo = {};
+  deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+  deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+  deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
+
+  deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+
+  // Enable device-specific extensions and validation layers
+  deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+  deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
+
+  if (ENABLE_VALIDATION_LAYER) {
+    deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+    deviceCreateInfo.ppEnabledLayerNames = validationLayers.data();
+  } else {
+    deviceCreateInfo.enabledLayerCount = 0;
+  }
+
+  VkDevice vkDevice;
+  if (vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &vkDevice) != VK_SUCCESS) {
+    throw std::runtime_error("Failed to create logical device");
+  }
+
+  Device::Queues queues;
+  for (unsigned int i = 0; i < requiredQueues.size(); i++)
+  {
+    if (requiredQueues[i]) {
+      vkGetDeviceQueue(vkDevice, queueFamilyIndices[i], 0, &queues[i]);
+    }
+  }
+
+  return new Device(this, vkDevice, queues);
 }

@@ -3,6 +3,9 @@
 #include "Window.h"
 #include "Instance.h"
 #include "QueueFlags.h"
+#include "Device.h"
+
+Device* device;
 
 int main(int argc, char const *argv[])
 {
@@ -24,6 +27,15 @@ int main(int argc, char const *argv[])
     { VK_KHR_SWAPCHAIN_EXTENSION_NAME },
     QueueFlagBit::ComputeBit | QueueFlagBit::GraphicsBit | QueueFlagBit::PresentBit | QueueFlagBit::TransferBit,
     surface
+  );
+
+  VkPhysicalDeviceFeatures deviceFeatures = {};
+  deviceFeatures.tessellationShader = VK_TRUE;
+  deviceFeatures.fillModeNonSolid = VK_TRUE;
+  deviceFeatures.samplerAnisotropy = VK_TRUE;
+  device = instance->CreateDevice(
+    QueueFlagBit::ComputeBit | QueueFlagBit::GraphicsBit | QueueFlagBit::PresentBit | QueueFlagBit::TransferBit,
+    deviceFeatures
   );
 
   while (!ShouldQuit()) {

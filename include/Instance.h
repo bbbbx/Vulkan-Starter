@@ -4,6 +4,7 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 #include "QueueFlags.h"
+#include "Device.h"
 
 extern const bool ENABLE_VALIDATION_LAYER;
 
@@ -32,6 +33,10 @@ public:
   VkInstance GetVkInstance() { return instance; }
 
   void PickPhysicalDevice(std::vector<const char*> deviceExtensions, QueueFlagBits requiredQueues, VkSurfaceKHR surface);
+
+  Device* CreateDevice(QueueFlagBits requiredQueues, VkPhysicalDeviceFeatures deviceFeatures);
+
+  const QueueFamilyIndices& GetQueueFamilyIndices() const { return queueFamilyIndices; }
 };
 
 
