@@ -25,3 +25,8 @@ VkQueue Device::GetQueue(QueueFlags flag) {
 unsigned int Device::GetQueueIndex(QueueFlags flag) {
   return GetInstance()->GetQueueFamilyIndices()[flag];
 }
+
+
+SwapChain* Device::CreateSwapChain(VkSurfaceKHR surface, unsigned int numBuffers) {
+  return new SwapChain(this, surface, numBuffers);
+}

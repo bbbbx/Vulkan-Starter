@@ -37,6 +37,9 @@ public:
   Device* CreateDevice(QueueFlagBits requiredQueues, VkPhysicalDeviceFeatures deviceFeatures);
 
   const QueueFamilyIndices& GetQueueFamilyIndices() const { return queueFamilyIndices; }
+  const VkSurfaceCapabilitiesKHR& GetSurfaceCapabilities() const { return surfaceCapabilities; }
+  const std::vector<VkSurfaceFormatKHR>& GetSurfaceFormats() const { return surfaceFormats; }
+  const std::vector<VkPresentModeKHR>& GetPresentModes() const { return presentModes; }
 };
 
 

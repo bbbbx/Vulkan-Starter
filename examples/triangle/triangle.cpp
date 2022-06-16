@@ -4,8 +4,10 @@
 #include "Instance.h"
 #include "QueueFlags.h"
 #include "Device.h"
+#include "SwapChain.h"
 
 Device* device;
+SwapChain* swapChain;
 
 int main(int argc, char const *argv[])
 {
@@ -37,6 +39,8 @@ int main(int argc, char const *argv[])
     QueueFlagBit::ComputeBit | QueueFlagBit::GraphicsBit | QueueFlagBit::PresentBit | QueueFlagBit::TransferBit,
     deviceFeatures
   );
+
+  swapChain = device->CreateSwapChain(surface, 5);
 
   while (!ShouldQuit()) {
     glfwPollEvents();

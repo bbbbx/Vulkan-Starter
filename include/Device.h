@@ -3,18 +3,22 @@
 #include <array>
 #include <vulkan/vulkan.h>
 #include "QueueFlags.h"
+#include "SwapChain.h"
 
+class SwapChain;
 class Instance;
 class Device
 {
   friend class Instance;
 
 public:
+  SwapChain* CreateSwapChain(VkSurfaceKHR surface, unsigned int numBuffers);
+
   Instance* GetInstance();
   VkDevice GetVkDevice();
   VkQueue GetQueue(QueueFlags flag);
   unsigned int GetQueueIndex(QueueFlags flag);
-  
+
   ~Device();
 
 private:
