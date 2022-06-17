@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
 {
   int width = 800;
   int height = 800;
-  const char* applicationName = "fuck";
+  const char* applicationName = "Demo";
   InitializeWindow(width, height, applicationName);
 
   uint32_t glfwExtensionCount = 0;

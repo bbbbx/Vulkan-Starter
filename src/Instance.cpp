@@ -1,4 +1,5 @@
 #include <string.h>
+#include <iostream>
 #include <stdexcept>
 #include <set>
 #include <vulkan/vulkan.h>
@@ -7,21 +8,30 @@
 #ifdef NDEBUG
 const bool ENABLE_VALIDATION_LAYER = false;
 #else
-#include <iostream>
 const bool ENABLE_VALIDATION_LAYER = true;
 #endif
 
 namespace
 {
-  static VKAPI_CALL VkBool32 VKAPI_CALL debugCallback(
+  /**
+   * @brief Callback function to allow messages from validation layers to be received
+   * 
+   * @param messageSeverity 
+   * @param messageType 
+   * @param pCallbackData 
+   * @param pUserData 
+   * @return VkBool32 The callback returns a VkBool32, which is interpreted in a layer-specified manner. The application should always return VK_FALSE. The VK_TRUE value is reserved for use in layer development.
+   */
+  static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     VkDebugUtilsMessageSeverityFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
     void* pUserData
   ) {
-    if (messageType == VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT) return VK_FALSE;
+    if (messageSeverity != VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
+      std::cerr << "Validation layers: " << pCallbackData->pMessage << std::endl;
+    }
 
-    std::cerr << "Validation layers: " << pCallbackData->pMessage << std::endl;
     return VK_FALSE;
   }
 
